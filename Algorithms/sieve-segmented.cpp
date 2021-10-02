@@ -36,51 +36,41 @@ using namespace std;
 #define sz  size()
 #define fastIO ios_base::sync_with_stdio(false);cin.tie(NULL);cout.tie(NULL)
 
-int n; // number of nodes
-vector<vector<int>> adj; // adjacency list of graph
+vb segmentedSieve(ll L, ll R){
+    ll lim = sqrt(R);
+    vll prime;
+    vb isprime(R+1,true);
 
-vector<bool> visited;
-vector<int> tin, low;
-int timer;
-
-void is_bridge(int a,int b){
-    cout<<"Node "<<a<<" to "<<b<<" is a bridge"<<endl;
-}
-
-void dfs(int node,int parent = -1){
-    tin[node] = low[node] = timer++;
-    visited[node] = true;
-    for(auto child : adj[node]){
-        if(child == parent){
-            continue;
-        }
-        if(visited[child]){
-            low[node] = min(low[node],tin[child]);
-        }
-        else{
-            dfs(child, node);
-            low[node] = min(low[node],low[child]);
-            if(tin[node] < low[child]){
-                is_bridge(node, child);
+    for(ll i=2;i<lim+1;i++){
+        if(isprime[i]){
+            prime.pb(i);
+            for(ll j = i*i;j<=lim;j+=i){
+                isprime[j] = false;
             }
-        }  
-    }
-}
-
-void find_bridge(){
-    timer = 0;
-    visited.assign(n,false);
-    tin.assign(n,-1);
-    low.assign(n,-1);
-    fr(i,0,n){
-        if(!visited[i]){
-            dfs(i);
         }
     }
+    vb Prime(R-L+1,true);
+    for(auto p : prime){
+        for(ll j = max(p*p, (L+p-1)/p*p);j<=R; j+= p){
+            Prime[j-L] = false;
+        }
+    }
+    if(L == 1){
+        Prime[0] = false;
+    }
+    return Prime;
 }
+
 
 void solve(){
-
+    int l,r;
+    cin>>l>>r;
+    vb res = segmentedSieve((ll)l,(ll)r);
+    for(int i = 0;i<res.sz;i++){
+        if(res[i]){
+            cout<<l+i<<endl;
+        }
+    }
 }
 
 void pre() {
@@ -95,11 +85,19 @@ void pre() {
 
 int main() {
 	fastIO; 
+
+	auto start = clock();
+
 	#ifndef ONLINE_JUDGE
 		freopen("input.txt","r",stdin);
 		freopen("output.txt","w",stdout);
 	#endif
 	pre();
+
+	double used= (double) (clock()-start);
+    used=(used*1000)/CLOCKS_PER_SEC;
+    cerr<<fixed<<setprecision(2)<<used<<" ms"<<endl;
+
 	return 0; 
 	
 }
